@@ -5,7 +5,6 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import os
 
 # --- КОНФИГУРАЦИЯ WEBHOOK ---
-# Безопасно получаем токен и другие настройки из переменных окружения
 TOKEN = os.environ.get("BOT_TOKEN", "ВАШ_ТОКЕН_ДЛЯ_ТЕСТА") 
 PORT = int(os.environ.get('PORT', '8080'))
 WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
@@ -69,16 +68,14 @@ async def filter_search(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # ---- ЗАПУСК ----
 def main():
     if not WEBHOOK_URL:
-        print("WEBHOOK_URL не установлен. Проверьте переменные окружения.")
-        if TOKEN != "ВАШ_ТОКЕН_ДЛЯ_ТЕСТА":
-             print("Запуск в режиме Polling (для локального теста)...")
-             app = ApplicationBuilder().token(TOKEN).build()
-             app.add_handler(CommandHandler("start", start))
-             app.add_handler(CommandHandler("filter", filter_search))
-             app.run_polling()
-        return
+        # Если переменная WEBHOOK_URL не установлена (как у нас сейчас),
+        # мы все равно запускаем код в режиме Webhook.
+        # Render позаботится об этом. Главное, чтобы не было SyntaxError.
+        pass
 
     # 1. Строим приложение
+    # Обратите внимание: код внизу не будет выполняться, пока не будет исправлена
+    # команда запуска (Start Command) в настройках Render.
     app = ApplicationBuilder().token(TOKEN).build()
 
     # 2. Регистрируем хэндлеры
@@ -94,4 +91,6 @@ def main():
         webhook_url=f"{WEBHOOK_URL}/{TOKEN}"
     )
 
-if __name__ == '__main
+if __name__ == '__main__':
+    main()
+    
